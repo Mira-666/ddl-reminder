@@ -4,7 +4,7 @@ A command-line tool to track assignment deadlines with SQLite database storage.
 Never miss a submission again!
 
 ## Features
-- ✅ Add assignments with course name and precise deadline (to the minute)
+- ✅ Add incidents with category and precise deadline (to the minute)
 - 📋 View all / unfinished / completed tasks separately
 - 🔥 Highlights urgent tasks (due within 24 hours)
 - ⚠️ Shows overdue tasks
@@ -20,7 +20,7 @@ Never miss a submission again!
    - 1: Show all tasks
    - 2: Show unfinished only
    - 3: Show completed only
-   - 4: Add a new task
+   - 4: Add a new incident (category + incident name + deadline)
    - 5: Mark task as done
    - 6: Delete task
    - 7: Year stats

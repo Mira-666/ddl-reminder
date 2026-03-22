@@ -5,18 +5,17 @@ from datetime import datetime
 DB_FILE = "tasks.db"
 
 def init_db():
-    """create table if not exists"""
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     #自增字段
     c.execute("""
         CREATE TABLE IF NOT EXISTS tasks(
               id        INTEGER  PRIMARY KEY AUTOINCREMENT,
-              course    TEXT     NOT NULL,
-              title     TEXT     NOT NULL,
-              ddl       TEXT     NOT NULL,
-              done      INTEGER  NOT NULL DEFAULT 0,
-              created   TEXT     NOT NULL
+              category    TEXT     NOT NULL,
+              incident    TEXT     NOT NULL,
+              ddl         TEXT     NOT NULL,
+              done        INTEGER  NOT NULL DEFAULT 0,
+              created     TEXT     NOT NULL
               )
               
     """)
@@ -58,9 +57,9 @@ def show_tasks(filter_done=None):
     c = conn.cursor()
 
     if filter_done is None:
-        c.execute("Select id, course, title, ddl, done, created FROM tasks ORDER BY ddl ASC")
+        c.execute("Select id, category, incident, ddl, done, created FROM tasks ORDER BY ddl ASC")
     else:
-        c.execute("SELECT id,course,title,ddl,done,creater FROM tasks WHERE done=? ORDER BY ddl ASC", (filter_done,))
+        c.execute("SELECT id,category,incident,ddl,done,created FROM tasks WHERE done=? ORDER BY ddl ASC", (filter_done,))
 
     rows = c.fetchall()
     conn.close()
@@ -73,25 +72,25 @@ def show_tasks(filter_done=None):
     print("-" * 65)
 
     for row in rows:
-        id_, course,title,ddl,done,created = row
+        id_, category, incident, ddl, done, created = row
         status = "✅" if done else "❌"
 
         if done:
             time_display = "completed"
         else:
             _, time_display = get_time_left(ddl)
-        print(f"[{id_}] {status}[{course}] {title}")
+        print(f"[{id_}] {status}[{category}] {incident}")
         print(f"      DDL:{ddl}  |  {time_display}")
         print(f"      added: {created}")
     print("-" * 65)
 
 def add_task():
     print("\n➕ add new task")
-    course = input("课程名称：")
-    title = input("作业名称：")
+    category = input("category(e.g. study/life/exam/competition): ")
+    incident = input("incident name: ")
 
     while True:
-        ddl = input("截止日期(YYYY-MM-DD HH:MM): ")
+        ddl = input("deadline:(YYYY-MM-DD HH:MM) ")
         try:
             datetime.strptime(ddl,"%Y-%m-%d %H:%M")
             break
@@ -103,8 +102,8 @@ def add_task():
     conn = get_conn()
     c = conn.cursor()
     c.execute(
-        "INSERT INTO tasks (course, title, ddl, done, created) VALUES (?, ?, ?, 0, ?)",
-         (course, title, ddl, created)
+        "INSERT INTO tasks (category, incident, ddl, done, created) VALUES (?, ?, ?, 0, ?)",
+         (category, incident, ddl, created)
     )
     conn.commit()
     conn.close()
@@ -133,7 +132,7 @@ def delete_task():
         id_ = int(input("\nenter task ID to delete:"))
         conn = get_conn()
         c = conn.cursor()
-        c.execute("SELECT title FROM tasks WHERE id=?", (id_,))
+        c.execute("SELECT incident FROM tasks WHERE id=?", (id_,))
         row = c.fetchone()
         if not row:
             print("❌ task ID not found")
@@ -159,11 +158,11 @@ def show_stats():
     overdue = c.fetchone()[0]
 
     c.execute("""
-        SELECT course,
+        SELECT category,
               COUNT(*) as total,
               SUM(done) as finished
         FROM tasks
-        GROUP BY course
+        GROUP BY category
         ORDER BY total DESC
     """)
     by_course = c.fetchall()
